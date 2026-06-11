@@ -3,8 +3,6 @@ name: Claude PR Review
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_review_comment:
-    types: [created]
   issue_comment:
     types: [created]
 
@@ -17,9 +15,20 @@ jobs:
       issues: write
       id-token: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Claude PR Review
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           max_turns: "10"
+          direct_prompt: |
+            Review this pull request and post your findings as a PR comment.
+            Prioritize findings in this order:
+            1. HIPAA / PHI safety — flag any path where patient data could be stored or transmitted unencrypted, logged in plaintext, or bypassed by silent exception handling.
+            2. Correctness bugs — logic errors, race conditions, resource leaks.
+            3. Code quality — unnecessary complexity, missing error handling at system boundaries.
+            For each issue: state the file and line, describe the risk, and suggest a concrete fix.
