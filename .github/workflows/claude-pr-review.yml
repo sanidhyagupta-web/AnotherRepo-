@@ -15,9 +15,11 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+      id-token: write
     steps:
       - name: Claude PR Review
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          max_tokens: 200000
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          max_turns: "10"
